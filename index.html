@@ -862,16 +862,41 @@
 </footer>
 
 <script>
-function joinWaitlist() {
+async function joinWaitlist() {
   const input = document.getElementById('email-input');
   const success = document.getElementById('success-msg');
-  if (input.value && input.value.includes('@')) {
-    input.style.display = 'none';
-    document.querySelector('.btn-primary').style.display = 'none';
-    success.style.display = 'block';
-  } else {
+
+  const email = input.value.trim();
+
+  if (!email || !email.includes('@')) {
     input.style.borderColor = 'rgba(255,255,255,0.4)';
     input.focus();
+    return;
+  }
+
+  try {
+    await fetch(
+      "https://script.google.com/macros/s/AKfycbz2WUvlZTWt44fDN0p6Q0-HaucETlsGPWAFtAd8v9BZ7jHx1Y3foijjhYkU96ybnXKD_Q/exec",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: email
+        })
+      }
+    );
+
+    input.style.display = 'none';
+
+    const waitlistButton = document.querySelector('#waitlist .btn-primary');
+    if (waitlistButton) {
+      waitlistButton.style.display = 'none';
+    }
+
+    success.style.display = 'block';
+
+  } catch (error) {
+    console.error(error);
+    alert('Something went wrong. Please try again.');
   }
 }
 
@@ -892,5 +917,3 @@ document.querySelectorAll('.feature-card, .for-card, .rank-item, .stat-item').fo
   observer.observe(el);
 });
 </script>
-</body>
-</html>
