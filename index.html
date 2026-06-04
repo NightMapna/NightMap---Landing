@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="NightMap — Namibia's first nightlife discovery and event ticketing app. Discover events, buy tickets, attend, rise.">
+<title>NightMap — Discover · Attend · Rise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --bg2: #111111;
+    --border: rgba(255,255,255,0.07);
+    --text: #ffffff;
+    --muted: rgba(255,255,255,0.35);
+    --dim: rgba(255,255,255,0.12);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 400;
+    overflow-x: hidden;
+  }
+
+  /* ── AMBIENT BACKGROUND ── */
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(80px);
+  }
+  .bg-orb-1 {
+    width: 600px; height: 600px;
+    top: -200px; left: -200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.025) 0%, transparent 70%);
+  }
+  .bg-orb-2 {
+    width: 400px; height: 400px;
+    bottom: 100px; right: -100px;
+    background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, rgba(13,13,13,0.95) 0%, transparent 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nm-badge {
+    width: 36px; height: 36px;
+    background: white;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nm-badge span {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: #0d0d0d;
+    letter-spacing: 1px;
+  }
+
+  .nav-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: white;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: white; }
+
+  .nav-cta {
+    background: white !important;
+    color: #0d0d0d !important;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase;
+    transition: opacity 0.2s !important;
+  }
+  .nav-cta:hover { opacity: 0.85 !important; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 40px 80px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+    animation-delay: 0.2s;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 14vw, 160px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+    animation-delay: 0.35s;
+  }
+
+  .hero-title .outline {
+    -webkit-text-stroke: 1.5px rgba(255,255,255,0.6);
+    color: transparent;
+  }
+
+  .hero-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(14px, 2vw, 18px);
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+    animation-delay: 0.5s;
+  }
+
+  .hero-desc {
+    max-width: 480px;
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+    animation-delay: 0.65s;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+    animation-delay: 0.8s;
+  }
+
+  .btn-primary {
+    background: white;
+    color: #0d0d0d;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    display: inline-block;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 14px 32px;
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.3); color: white; }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+    animation-delay: 1.2s;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+  .scroll-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* ── STATS STRIP ── */
+  .stats-strip {
+    position: relative;
+    z-index: 1;
+    padding: 60px 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 20px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  /* ── FEATURES ── */
+  .features {
+    position: relative;
+    z-index: 1;
+    padding: 80px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 0.95;
+    margin-bottom: 60px;
+  }
+
+  .section-title .outline {
+    -webkit-text-stroke: 1px rgba(255,255,255,0.5);
+    color: transparent;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .feature-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    padding: 32px 28px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  }
+  .feature-card:hover { background: rgba(255,255,255,0.04); }
+
+  .feature-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 20px;
+  }
+
+  .feature-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── FOR SECTION ── */
+  .for-section {
+    position: relative;
+    z-index: 1;
+    padding: 80px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .for-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .for-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .for-card:hover { background: rgba(255,255,255,0.035); }
+  .for-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  }
+
+  .for-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    margin-bottom: 16px;
+  }
+
+  .for-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    line-height: 0.95;
+    margin-bottom: 24px;
+  }
+
+  .for-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .for-list li {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .for-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* ── RANK SECTION ── */
+  .rank-section {
+    position: relative;
+    z-index: 1;
+    padding: 80px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .rank-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 48px;
+    flex-wrap: wrap;
+  }
+
+  .rank-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 32px;
+    position: relative;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    flex: 1;
+    min-width: 120px;
+    transition: background 0.3s;
+  }
+  .rank-item:hover { background: rgba(255,255,255,0.04); }
+
+  .rank-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+  }
+
+  .rank-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .rank-req {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .rank-arrow {
+    font-size: 12px;
+    color: rgba(255,255,255,0.15);
+    padding: 0 4px;
+    align-self: center;
+  }
+
+  /* ── CTA SECTION ── */
+  .cta-section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+
+  .cta-section .section-label { margin-bottom: 24px; }
+
+  .cta-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.95;
+    margin-bottom: 24px;
+  }
+
+  .cta-sub {
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+  }
+
+  /* ── WAITLIST FORM ── */
+  .waitlist-form {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    max-width: 440px;
+    margin: 0 auto 20px;
+    flex-wrap: wrap;
+  }
+
+  .waitlist-input {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 14px 18px;
+    color: white;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .waitlist-input::placeholder { color: var(--muted); }
+  .waitlist-input:focus { border-color: rgba(255,255,255,0.3); }
+
+  .waitlist-note {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .footer-tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+  .footer-links a {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: white; }
+
+  .footer-copy {
+    font-size: 11px;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 80px; }
+    .stats-strip { grid-template-columns: 1fr; padding: 40px 24px; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat-item:last-child { border-bottom: none; }
+    .features, .for-section, .rank-section { padding: 60px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .for-grid { grid-template-columns: 1fr; }
+    .rank-row { gap: 2px; }
+    .rank-item { padding: 16px 20px; min-width: 80px; }
+    .cta-section { padding: 80px 24px; }
+    footer { padding: 30px 24px; flex-direction: column; align-items: flex-start; }
+  }
+
+  /* success state */
+  .success-msg {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+    display: none;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nm-badge"><span>NM</span></div>
+    <span class="nav-name">NightMap</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#organisers">Organisers</a></li>
+    <li><a href="#ranks">Ranks</a></li>
+    <li><a href="privacy.html">Privacy</a></li>
+    <li><a href="terms.html">Terms</a></li>
+    <li><a href="#waitlist" class="nav-cta">Get Early Access</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Namibia's First Nightlife App</div>
+  <h1 class="hero-title">
+    NIGHT<span class="outline">MAP</span>
+  </h1>
+  <div class="hero-sub">Discover · Attend · Rise</div>
+  <p class="hero-desc">
+    Find every event happening near you tonight. Buy tickets in seconds. Build your nightlife identity. Built for Namibia.
+  </p>
+  <div class="hero-actions">
+    <a href="#waitlist" class="btn-primary">Get Early Access</a>
+    <a href="#features" class="btn-secondary">Learn More</a>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <div class="stat-num">2</div>
+    <div class="stat-label">Cities at Launch</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Rank Levels</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">8%</div>
+    <div class="stat-label">Commission Per Ticket</div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">What NightMap Does</div>
+  <h2 class="section-title">THE FULL<br><span class="outline">EXPERIENCE</span></h2>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-number">01</div>
+      <div class="feature-title">Discover Events</div>
+      <p class="feature-desc">Live map of every event happening near you — tonight, this week, this month. Filter by category, price and date. Never miss what's on again.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">02</div>
+      <div class="feature-title">Buy Tickets Instantly</div>
+      <p class="feature-desc">Buy your ticket in the app in under a minute. QR code goes straight to your phone. Show up, get scanned, you're in. No EFTs. No stress.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">03</div>
+      <div class="feature-title">Build Your Rank</div>
+      <p class="feature-desc">Every event you attend builds your rank. From Newcomer to Icon — your profile becomes your nightlife story. Proof that you actually live.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">04</div>
+      <div class="feature-title">Connect with People</div>
+      <p class="feature-desc">See who's going before you arrive. Follow people who share your vibe. NightMap is where Namibia's nightlife community lives.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">05</div>
+      <div class="feature-title">Follow Organisers</div>
+      <p class="feature-desc">Follow your favourite event organisers and never miss their next event. See their full history, ratings and verified status before you buy.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">06</div>
+      <div class="feature-title">Safe & Verified</div>
+      <p class="feature-desc">Every organiser goes through ID verification. Verified badges, strike systems and payout holds ensure every event is legitimate.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FOR SECTION -->
+<section class="for-section" id="organisers">
+  <div class="for-grid">
+    <div class="for-card">
+      <div class="for-tag">For Attendees</div>
+      <div class="for-title">YOUR NIGHT.<br>SORTED.</div>
+      <ul class="for-list">
+        <li>Discover events near you on a live map</li>
+        <li>Buy tickets in the app in seconds</li>
+        <li>QR code ticket straight to your phone</li>
+        <li>See how many people are going</li>
+        <li>Connect with people who share your vibe</li>
+        <li>Build your rank with every event attended</li>
+        <li>Your profile is your nightlife story</li>
+      </ul>
+    </div>
+    <div class="for-card">
+      <div class="for-tag">For Organisers</div>
+      <div class="for-title">RUN IT<br>PROPERLY.</div>
+      <ul class="for-list">
+        <li>Create and publish events in minutes</li>
+        <li>Sell tickets with tier pricing</li>
+        <li>Scan guests at the door with your phone</li>
+        <li>See revenue and attendance in real time</li>
+        <li>Audience insights and analytics</li>
+        <li>Build a following of loyal attendees</li>
+        <li>Payouts straight to your account</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- RANKS -->
+<section class="rank-section" id="ranks">
+  <div class="section-label">The Rank System</div>
+  <h2 class="section-title">YOUR<br><span class="outline">NIGHTLIFE IDENTITY</span></h2>
+  <p style="color:var(--muted);font-size:15px;max-width:480px;margin:0 auto;line-height:1.7;">Every event you attend in Namibia builds your rank. The more you show up — the higher you rise.</p>
+
+  <div class="rank-row">
+    <div class="rank-item">
+      <div class="rank-icon">○</div>
+      <div class="rank-name">Newcomer</div>
+      <div class="rank-req">0+ events</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-icon">◇</div>
+      <div class="rank-name">Social Butterfly</div>
+      <div class="rank-req">5+ events</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-icon">◆</div>
+      <div class="rank-name">Night Owl</div>
+      <div class="rank-req">10+ events</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-icon">✦</div>
+      <div class="rank-name">Party Veteran</div>
+      <div class="rank-req">20+ events</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-icon">★</div>
+      <div class="rank-name">Legend</div>
+      <div class="rank-req">30+ events</div>
+    </div>
+    <div class="rank-item" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.15)">
+      <div class="rank-icon">♛</div>
+      <div class="rank-name">Icon</div>
+      <div class="rank-req">50+ events</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CTA / WAITLIST -->
+<section class="cta-section" id="waitlist">
+  <div class="section-label">Launching Soon — Windhoek & Swakopmund</div>
+  <h2 class="cta-title">BE THE<br>FIRST IN.</h2>
+  <p class="cta-sub">NightMap is coming to Namibia. Join the waitlist and be the first to know when we launch.</p>
+
+  <div class="waitlist-form">
+    <input type="email" class="waitlist-input" placeholder="your@email.com" id="email-input">
+    <button class="btn-primary" onclick="joinWaitlist()">Join Waitlist</button>
+  </div>
+  <div class="waitlist-note">No spam. Just a notification when we launch.</div>
+  <div class="success-msg" id="success-msg">✓ &nbsp; You're on the list. We'll be in touch.</div>
+
+  <div style="margin-top:40px;font-size:13px;color:var(--muted)">
+    Questions? <a href="mailto:hello@nightmap.app" style="color:rgba(255,255,255,0.5);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.15)">hello@nightmap.app</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <div class="nm-badge" style="width:28px;height:28px;border-radius:7px"><span style="font-size:12px">NM</span></div>
+    <span class="footer-tagline">Discover · Attend · Rise</span>
+  </div>
+  <ul class="footer-links">
+    <li><a href="privacy.html">Privacy Policy</a></li>
+    <li><a href="terms.html">Terms of Service</a></li>
+    <li><a href="mailto:hello@nightmap.app">Contact</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 NightMap. Namibia.</div>
+</footer>
+
+<script>
+function joinWaitlist() {
+  const input = document.getElementById('email-input');
+  const success = document.getElementById('success-msg');
+  if (input.value && input.value.includes('@')) {
+    input.style.display = 'none';
+    document.querySelector('.btn-primary').style.display = 'none';
+    success.style.display = 'block';
+  } else {
+    input.style.borderColor = 'rgba(255,255,255,0.4)';
+    input.focus();
+  }
+}
+
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.feature-card, .for-card, .rank-item, .stat-item').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
