@@ -408,18 +408,36 @@
   });
 
   /* waitlist submit */
-  document.getElementById('waitlistForm').addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.classList.add('submitting');
+document.getElementById('waitlistForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const input = document.getElementById('waitlistEmail');
+  const email = input.value;
+
+  submitBtn.classList.add('submitting');
+
+  try {
+    await fetch(
+      "https://script.google.com/macros/s/AKfycbz2WUvlZTWt44fDN0p6Q0-HaucETlsGPWAFtAd8v9BZ7jHx1Y3foijjhYkU96ybnXKD_Q/exec",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: email
+        })
+      }
+    );
+
     const success = document.getElementById('successMsg');
+
     setTimeout(()=>{
       form.style.display = 'none';
       success.classList.add('show');
     }, 250);
-  });
-</script>
 
-</body>
-</html>
+  } catch (error) {
+    console.error("Waitlist submission failed:", error);
+    submitBtn.classList.remove('submitting');
+  }
+});
