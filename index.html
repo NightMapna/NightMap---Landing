@@ -407,52 +407,59 @@
     });
   });
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  /* waitlist submit — sends to Supabase */
+  document.getElementById('waitlistForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const form = e.target;
+    const input = document.getElementById('waitlistEmail');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const success = document.getElementById('successMsg');
+    const email = input.value.trim();
+    const activeCityPill = document.querySelector('.city-pill.active');
+    const city = activeCityPill ? activeCityPill.dataset.city : null;
 
-<script>
-
-const supabaseClient = supabase.createClient(
-  "https://qgrnokcsvinzppkgybro.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFncm5va2NzdmluenBwa2d5YnJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTk3MzcsImV4cCI6MjA5NTI5NTczN30.UEXaLNf-ebjxpiLfg0HoDmLU6h1z8jS2_2Of-54K5G4"
-);
-
-const form = document.getElementById("waitlist-form");
-const submitBtn = document.getElementById("submitBtn");
-
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById("email").value;
-
-  try {
+    if(!email || !email.includes('@')){
+      input.style.borderColor = 'rgba(255,90,90,0.6)';
+      input.focus();
+      return;
+    }
 
     submitBtn.classList.add('submitting');
 
-    const { data, error } = await supabaseClient
-      .from("waitlist")
-      .insert([
-        {
-          email: email
-        }
-      ]);
+    const SUPABASE_URL = "https://qgrnokcsvinzppkgybro.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFncm5va2NzdmluenBwa2d5YnJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTk3MzcsImV4cCI6MjA5NTI5NTczN30.UEXaLNf-ebjxpiLfg0HoDmLU6h1z8jS2_2Of-54K5G4";
 
-    if (error) {
-      throw error;
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({ email: email, city: city })
+      });
+
+      if(!response.ok){
+        const errText = await response.text();
+        throw new Error(errText || `Request failed with status ${response.status}`);
+      }
+
+      form.style.display = 'none';
+      success.classList.add('show');
+
+    } catch (error) {
+      console.error(error);
+      submitBtn.classList.remove('submitting');
+      if(String(error.message).toLowerCase().includes('duplicate')){
+        input.style.borderColor = 'rgba(255,90,90,0.6)';
+        alert("Looks like that email's already on the list!");
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
     }
-
-    form.style.display = "none";
-    document.getElementById("successMsg").classList.add("show");
-
-  } catch (error) {
-
-    console.error("Waitlist submission failed:", error);
-    submitBtn.classList.remove('submitting');
-
-  }
-
-});
-
+  });
 </script>
 
 </body>
