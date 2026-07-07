@@ -436,9 +436,13 @@ document.getElementById('waitlistForm').addEventListener('submit', async (e) => 
     form.style.display = "none";
     document.getElementById("successMsg").classList.add("show");
 
-  } catch (err) {
-    console.error(err);
-    submitBtn.classList.remove("submitting");
-    alert("Submission failed. Please try again.");
-  }
+  } catch (error) {
+  console.error("Waitlist submission failed:", error);
+  submitBtn.classList.remove('submitting');
+}
+
 });
+</script>
+
+</body>
+</html>
