@@ -407,41 +407,56 @@
     });
   });
 
-  /* waitlist submit */
-document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const supabaseClient = supabase.createClient(
+  "https://qgrnokcsvinzppkgybro.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFncm5va2NzdmluenBwa2d5YnJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTk3MzcsImV4cCI6MjA5NTI5NTczN30.UEXaLNf-ebjxpiLfg0HoDmLU6h1z8jS2_2Of-54K5G4"
+);
+
+
+// Your existing waitlist form code starts here
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const form = e.target;
-  const submitBtn = form.querySelector('button[type="submit"]');
-  const input = document.getElementById('waitlistEmail');
-  const email = input.value;
-
-  submitBtn.classList.add('submitting');
+  const email = document.getElementById("email").value;
 
   try {
-    await fetch(
-      "https://script.google.com/macros/s/AKfycbz2WUvlZTWt44fDN0p6Q0-HaucETlsGPWAFtAd8v9BZ7jHx1Y3foijjhYkU96ybnXKD_Q/exec",
-      {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: email
-        })
-      }
-    );
 
+    submitBtn.classList.add('submitting');
+
+
+    // Send email directly to Supabase
+    const { data, error } = await supabaseClient
+      .from("waitlist")
+      .insert([
+        {
+          email: email
+        }
+      ]);
+
+    if (error) {
+      throw error;
+    }
+
+
+    // Success message
     form.style.display = "none";
     document.getElementById("successMsg").classList.add("show");
 
+
   } catch (error) {
-  console.error("Waitlist submission failed:", error);
-  submitBtn.classList.remove('submitting');
-}
+
+    console.error("Waitlist submission failed:", error);
+    submitBtn.classList.remove('submitting');
+
+  }
 
 });
+
 </script>
 
 </body>
