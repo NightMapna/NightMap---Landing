@@ -408,7 +408,7 @@
   });
 
   /* waitlist submit */
-document.getElementById('waitlistForm').addEventListener('submit', async (e)=>{
+document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const form = e.target;
@@ -423,21 +423,22 @@ document.getElementById('waitlistForm').addEventListener('submit', async (e)=>{
       "https://script.google.com/macros/s/AKfycbz2WUvlZTWt44fDN0p6Q0-HaucETlsGPWAFtAd8v9BZ7jHx1Y3foijjhYkU96ybnXKD_Q/exec",
       {
         method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           email: email
         })
       }
     );
 
-    const success = document.getElementById('successMsg');
+    form.style.display = "none";
+    document.getElementById("successMsg").classList.add("show");
 
-    setTimeout(()=>{
-      form.style.display = 'none';
-      success.classList.add('show');
-    }, 250);
-
-  } catch (error) {
-    console.error("Waitlist submission failed:", error);
-    submitBtn.classList.remove('submitting');
+  } catch (err) {
+    console.error(err);
+    submitBtn.classList.remove("submitting");
+    alert("Submission failed. Please try again.");
   }
 });
