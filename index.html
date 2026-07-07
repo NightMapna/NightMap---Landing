@@ -416,8 +416,9 @@ const supabaseClient = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFncm5va2NzdmluenBwa2d5YnJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTk3MzcsImV4cCI6MjA5NTI5NTczN30.UEXaLNf-ebjxpiLfg0HoDmLU6h1z8jS2_2Of-54K5G4"
 );
 
+const form = document.getElementById("waitlist-form");
+const submitBtn = document.getElementById("submitBtn");
 
-// Your existing waitlist form code starts here
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -428,8 +429,6 @@ form.addEventListener("submit", async (e) => {
 
     submitBtn.classList.add('submitting');
 
-
-    // Send email directly to Supabase
     const { data, error } = await supabaseClient
       .from("waitlist")
       .insert([
@@ -442,11 +441,8 @@ form.addEventListener("submit", async (e) => {
       throw error;
     }
 
-
-    // Success message
     form.style.display = "none";
     document.getElementById("successMsg").classList.add("show");
-
 
   } catch (error) {
 
